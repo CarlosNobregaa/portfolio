@@ -120,6 +120,7 @@ export const ptBR: Dictionary = {
       viewProject: 'Ver projeto',
       backToProjects: 'Voltar para todos os projetos',
       preview: 'Prévia da interface',
+      previewInteractive: 'Interativo — pode clicar',
       previewNote:
         'Uma reconstrução da interface do produto, refeita aqui em markup — sem screenshots. Os sistemas reais são softwares privados de clientes, então toda empresa, pessoa e valor exibido é fictício; o que espelha o produto real é o layout, a terminologia e a estrutura da tela.',
       overview: 'Visão geral',

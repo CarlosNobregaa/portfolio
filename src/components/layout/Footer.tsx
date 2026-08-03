@@ -3,11 +3,12 @@
 import { ArrowUp, Building2, Github, Linkedin, Mail } from 'lucide-react'
 import { useT } from '@/i18n/LocaleProvider'
 import { profile } from '@/data/profile'
-import { sections, useNavLabels } from '@/lib/utils'
+import { sections, useNavLabels, useSectionHref } from '@/lib/utils'
 
 export function Footer() {
   const t = useT()
   const navLabels = useNavLabels()
+  const hrefFor = useSectionHref()
 
   const socials = [
     { icon: Github, href: profile.links.github, label: 'GitHub' },
@@ -42,7 +43,7 @@ export function Footer() {
               {sections.map((id) => (
                 <li key={id}>
                   <a
-                    href={`#${id}`}
+                    href={hrefFor(id)}
                     className="text-ink-500 hover:text-brand-600 dark:text-ink-400 dark:hover:text-brand-300 text-sm transition-colors"
                   >
                     {navLabels[id]}
@@ -88,7 +89,7 @@ export function Footer() {
           </div>
 
           <a
-            href="#top"
+            href={hrefFor('top')}
             className="text-ink-500 dark:text-ink-400 hover:border-brand-400/40 hover:text-brand-600 dark:hover:text-brand-300 inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors"
           >
             <ArrowUp className="size-3.5" />

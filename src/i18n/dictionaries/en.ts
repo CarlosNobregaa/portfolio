@@ -123,6 +123,7 @@ export const en = {
       viewProject: 'View project',
       backToProjects: 'Back to all work',
       preview: 'Interface preview',
+      previewInteractive: 'Interactive — click around',
       previewNote:
         'A reconstruction of the product interface, rebuilt here in markup — no screenshots. The real systems are private client software, so every company, person and figure shown is invented; the layout, terminology and screen structure are what mirror the actual product.',
       overview: 'Overview',

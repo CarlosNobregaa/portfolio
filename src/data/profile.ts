@@ -7,7 +7,7 @@ export const profile = {
   fullName: 'Carlos Wagner Nóbrega Andriola',
   shortName: 'Carlos',
   initials: 'CN',
-  email: 'adm.chatfy@gmail.com',
+  email: 'carloswn@alu.ufc.br',
   location: 'Ceará, Brazil',
   timezone: 'GMT-3',
   company: 'Automy',

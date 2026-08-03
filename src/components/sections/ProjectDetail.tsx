@@ -115,9 +115,18 @@ export function ProjectDetail({ projectId }: { projectId: ProjectId }) {
         {/* Interface preview */}
         <Reveal delay={0.12}>
           <section className="mb-12">
-            <h2 className="text-ink-400 mb-4 font-mono text-[11px] font-semibold tracking-[0.2em] uppercase">
-              {labels.preview}
-            </h2>
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <h2 className="text-ink-400 font-mono text-[11px] font-semibold tracking-[0.2em] uppercase">
+                {labels.preview}
+              </h2>
+              <span className="border-brand-400/30 bg-brand-400/10 text-brand-600 dark:text-brand-300 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium">
+                <span className="relative grid size-1.5 place-items-center">
+                  <span className="animate-pulse-ring bg-brand-400 absolute size-1.5 rounded-full" />
+                  <span className="bg-brand-400 size-1.5 rounded-full" />
+                </span>
+                {labels.previewInteractive}
+              </span>
+            </div>
 
             <div
               className="relative overflow-hidden rounded-3xl border p-4 sm:p-8"
@@ -130,8 +139,23 @@ export function ProjectDetail({ projectId }: { projectId: ProjectId }) {
                   project.accent,
                 )}
               />
-              <div aria-hidden className="mx-auto max-w-[560px]">
-                <ProjectMockup id={project.id} accent={project.accent} />
+              {/*
+                The mockup is designed at a fixed 900x464. Narrow viewports
+                scale the whole tree down as one unit instead of reflowing it,
+                so it keeps the proportions of a real screenshot.
+
+                Each scale step needs a matching wrapper height: `scale` is a
+                transform and leaves the layout box at full size, which would
+                otherwise open a few hundred px of dead space below.
+              */}
+              <div className="relative h-[200px] overflow-hidden sm:h-[292px] md:h-[385px] lg:h-[468px]">
+                <div className="absolute top-0 left-1/2 w-[900px] origin-top -translate-x-1/2 scale-[0.42] sm:scale-[0.62] md:scale-[0.82] lg:scale-100">
+                  <ProjectMockup
+                    id={project.id}
+                    accent={project.accent}
+                    interactive
+                  />
+                </div>
               </div>
             </div>
 

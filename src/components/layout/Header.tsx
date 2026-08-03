@@ -7,13 +7,14 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useT } from '@/i18n/LocaleProvider'
 import { profile } from '@/data/profile'
-import { sections, cn, useNavLabels, type SectionId } from '@/lib/utils'
+import { sections, cn, useNavLabels, useSectionHref, type SectionId } from '@/lib/utils'
 
 const MOBILE_BREAKPOINT = '(min-width: 768px)'
 
 export function Header() {
   const t = useT()
   const navLabels = useNavLabels()
+  const hrefFor = useSectionHref()
   const { scrollY } = useScroll()
   const [condensed, setCondensed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -122,7 +123,7 @@ export function Header() {
             )}
           >
             <a
-              href="#top"
+              href={hrefFor('top')}
               className="group flex items-center gap-2.5"
               aria-label={profile.name}
             >
@@ -138,7 +139,7 @@ export function Header() {
               {sections.map((id) => (
                 <a
                   key={id}
-                  href={`#${id}`}
+                  href={hrefFor(id)}
                   aria-current={active === id ? 'location' : undefined}
                   className={cn(
                     'relative rounded-lg px-3 py-1.5 text-sm transition-colors',
@@ -221,7 +222,7 @@ export function Header() {
               {sections.map((id) => (
                 <a
                   key={id}
-                  href={`#${id}`}
+                  href={hrefFor(id)}
                   onClick={() => setMenuOpen(false)}
                   className={cn(
                     'rounded-xl px-3 py-2.5 text-base transition-colors',

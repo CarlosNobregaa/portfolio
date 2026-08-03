@@ -1,5 +1,6 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
 import { useT } from '@/i18n/LocaleProvider'
 
 /** Tiny classname joiner — enough for this codebase, no extra dependency. */
@@ -26,5 +27,22 @@ export function useNavLabels(): Record<SectionId, string> {
     stack: t.nav.stack,
     experience: t.nav.experience,
     contact: t.nav.contact,
+  }
+}
+
+/**
+ * Builds hrefs for the in-page sections.
+ *
+ * The sections only exist on the home page. A bare `#contact` on
+ * /projects/aldea/ resolves against the current document, finds nothing and
+ * does nothing at all — so off-home the links have to be absolute.
+ */
+export function useSectionHref(): (id: SectionId | 'top') => string {
+  const pathname = usePathname()
+  const onHome = pathname === '/' || pathname === ''
+
+  return (id) => {
+    if (id === 'top') return onHome ? '#top' : '/'
+    return onHome ? `#${id}` : `/#${id}`
   }
 }

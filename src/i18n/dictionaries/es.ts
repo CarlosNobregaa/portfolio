@@ -120,6 +120,7 @@ export const es: Dictionary = {
       viewProject: 'Ver proyecto',
       backToProjects: 'Volver a todos los proyectos',
       preview: 'Vista previa de la interfaz',
+      previewInteractive: 'Interactivo — puedes hacer clic',
       previewNote:
         'Una reconstrucción de la interfaz del producto, rehecha aquí en markup — sin capturas. Los sistemas reales son software privado de clientes, así que toda empresa, persona y cifra mostrada es ficticia; lo que refleja el producto real es el layout, la terminología y la estructura de la pantalla.',
       overview: 'Resumen',

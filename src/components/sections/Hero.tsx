@@ -74,26 +74,46 @@ export function Hero() {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.1 }}
-              className="text-ink-950 max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-balance sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.05] dark:text-white"
+              className="text-ink-950 grid max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-balance sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.05] dark:text-white"
             >
-              {t.hero.headlinePrefix}{' '}
-              <span className="relative inline-block align-top">
-                <AnimatePresence mode="wait" initial={false}>
-                  {/* No `reduce ?` branch on these props: `useReducedMotion()`
-                      is false on the server and true on a reduced-motion
-                      client, which is a hydration mismatch. MotionConfig
-                      neutralises the animation instead. */}
-                  <motion.span
-                    key={`${index}-${phrases[index]}`}
-                    initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, y: -16, filter: 'blur(6px)' }}
-                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-gradient inline-block"
-                  >
-                    {phrases[index]}
-                  </motion.span>
-                </AnimatePresence>
+              {/*
+                Every phrase is rendered invisibly into the same grid cell as
+                the visible one. The cell resolves to the tallest of them, so a
+                phrase that wraps onto an extra line no longer pushes the
+                paragraph below up and down while it rotates. Measuring this way
+                rather than hard-coding a height keeps it correct across all
+                three locales and every breakpoint.
+              */}
+              {phrases.map((phrase, i) => (
+                <span
+                  key={i}
+                  aria-hidden
+                  className="invisible col-start-1 row-start-1"
+                >
+                  {t.hero.headlinePrefix} {phrase}
+                </span>
+              ))}
+
+              <span className="col-start-1 row-start-1">
+                {t.hero.headlinePrefix}{' '}
+                <span className="relative inline-block align-top">
+                  <AnimatePresence mode="wait" initial={false}>
+                    {/* No `reduce ?` branch on these props: `useReducedMotion()`
+                        is false on the server and true on a reduced-motion
+                        client, which is a hydration mismatch. MotionConfig
+                        neutralises the animation instead. */}
+                    <motion.span
+                      key={`${index}-${phrases[index]}`}
+                      initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, y: -16, filter: 'blur(6px)' }}
+                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                      className="text-gradient inline-block"
+                    >
+                      {phrases[index]}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
               </span>
             </motion.h1>
 

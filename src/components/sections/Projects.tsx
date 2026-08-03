@@ -164,12 +164,12 @@ function ProjectCard({
       <Link
         href={`/projects/${project.id}`}
         aria-label={`${labels.viewProject}: ${project.name}`}
-        className="relative block h-[218px] overflow-hidden"
+        className="relative block h-[240px] overflow-hidden"
         style={{ background: 'var(--surface-sunken)' }}
       >
         <div
           aria-hidden
-          className="pointer-events-none origin-top scale-[0.85] px-5 pt-5 transition-transform duration-500 group-hover:scale-[0.88]"
+          className="pointer-events-none w-[900px] origin-top-left scale-[0.56] pt-5 pl-5 transition-transform duration-500 group-hover:scale-[0.58]"
         >
           <ProjectMockup id={project.id} accent={project.accent} />
         </div>
