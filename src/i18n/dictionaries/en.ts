@@ -124,7 +124,7 @@ export const en = {
       backToProjects: 'Back to all work',
       preview: 'Interface preview',
       previewNote:
-        'A reconstruction of the product interface, rebuilt here in code. The real systems are private, so this shows the layout and the core screen rather than live client data.',
+        'A reconstruction of the product interface, rebuilt here in markup — no screenshots. The real systems are private client software, so every company, person and figure shown is invented; the layout, terminology and screen structure are what mirror the actual product.',
       overview: 'Overview',
       myRole: 'What I worked on',
       highlights: 'Highlights',

@@ -130,7 +130,7 @@ export function ProjectDetail({ projectId }: { projectId: ProjectId }) {
                   project.accent,
                 )}
               />
-              <div aria-hidden className="mx-auto max-w-2xl">
+              <div aria-hidden className="mx-auto max-w-[560px]">
                 <ProjectMockup id={project.id} accent={project.accent} />
               </div>
             </div>

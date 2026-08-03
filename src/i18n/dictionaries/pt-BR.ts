@@ -121,7 +121,7 @@ export const ptBR: Dictionary = {
       backToProjects: 'Voltar para todos os projetos',
       preview: 'Prévia da interface',
       previewNote:
-        'Uma reconstrução da interface do produto, refeita aqui em código. Os sistemas reais são privados, então isto mostra o layout e a tela principal, não dados de clientes.',
+        'Uma reconstrução da interface do produto, refeita aqui em markup — sem screenshots. Os sistemas reais são softwares privados de clientes, então toda empresa, pessoa e valor exibido é fictício; o que espelha o produto real é o layout, a terminologia e a estrutura da tela.',
       overview: 'Visão geral',
       myRole: 'O que eu fiz',
       highlights: 'Destaques',
