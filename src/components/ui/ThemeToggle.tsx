@@ -22,7 +22,6 @@ export function ThemeToggle() {
       title={t.a11y.toggleTheme}
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className="border-hairline text-ink-600 dark:text-ink-300 hover:border-brand-400/40 hover:text-brand-600 dark:hover:text-brand-300 relative grid size-9 place-items-center rounded-lg border bg-black/[0.03] transition-colors dark:bg-white/[0.04]"
-      style={{ borderColor: 'var(--hairline)' }}
     >
       {/* Render nothing themed until mounted to avoid a hydration mismatch. */}
       <AnimatePresence initial={false} mode="wait">

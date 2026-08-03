@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   Building2,
@@ -33,6 +33,23 @@ export function Contact() {
   const [errors, setErrors] = useState<Errors>({})
   const [submitted, setSubmitted] = useState(false)
   const [copied, setCopied] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const timers = useRef<number[]>([])
+
+  // One place to clear pending timeouts, so unmounting mid-countdown never
+  // fires setState on a dead component, and a rapid second click cannot have
+  // the first click's timer reset it early.
+  useEffect(() => {
+    const pending = timers.current
+    return () => {
+      pending.forEach(window.clearTimeout)
+    }
+  }, [])
+
+  function schedule(fn: () => void, ms: number) {
+    timers.current.forEach(window.clearTimeout)
+    timers.current = [window.setTimeout(fn, ms)]
+  }
 
   function update(field: Field, value: string) {
     setValues((v) => ({ ...v, [field]: value }))
@@ -56,7 +73,20 @@ export function Contact() {
     event.preventDefault()
     const found = validate()
     setErrors(found)
-    if (Object.keys(found).length > 0) return
+
+    if (Object.keys(found).length > 0) {
+      // Send focus to the first offending field: three simultaneous
+      // role="alert" nodes are announced inconsistently, and leaving focus on
+      // the submit button tells a keyboard user nothing about what failed.
+      const order: Field[] = ['name', 'email', 'subject', 'message']
+      const firstInvalid = order.find((field) => found[field])
+      if (firstInvalid) {
+        formRef.current
+          ?.querySelector<HTMLElement>(`#${firstInvalid}`)
+          ?.focus({ preventScroll: false })
+      }
+      return
+    }
 
     // No third-party form service: hand the message to the visitor's mail client.
     const subject = values.subject.trim() || `Portfolio contact — ${values.name.trim()}`
@@ -64,7 +94,7 @@ export function Contact() {
     const href = `mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
     setSubmitted(true)
-    window.setTimeout(() => setSubmitted(false), 4000)
+    schedule(() => setSubmitted(false), 4000)
     window.location.href = href
   }
 
@@ -72,7 +102,7 @@ export function Contact() {
     try {
       await navigator.clipboard.writeText(profile.email)
       setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
+      schedule(() => setCopied(false), 2000)
     } catch {
       // Clipboard blocked — the address is visible on screen anyway.
     }
@@ -88,7 +118,7 @@ export function Contact() {
     {
       icon: Github,
       label: t.contact.direct.githubLabel,
-      value: '@CarlosNobregaa',
+      value: `@${profile.githubHandle}`,
       href: profile.links.github,
     },
     {
@@ -118,6 +148,7 @@ export function Contact() {
         <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:gap-8">
           <Reveal>
             <form
+              ref={formRef}
               onSubmit={onSubmit}
               noValidate
               className="surface-card space-y-5 rounded-3xl p-6 sm:p-8"
@@ -172,6 +203,7 @@ export function Contact() {
                 <AnimatePresence>
                   {submitted ? (
                     <motion.span
+                      role="status"
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0 }}
@@ -203,7 +235,6 @@ export function Contact() {
                       <div className="group flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.05]">
                         <span
                           className="text-ink-500 dark:text-ink-400 group-hover:text-brand-500 grid size-9 shrink-0 place-items-center rounded-xl border transition-colors"
-                          style={{ borderColor: 'var(--hairline)' }}
                         >
                           <channel.icon className="size-4" />
                         </span>

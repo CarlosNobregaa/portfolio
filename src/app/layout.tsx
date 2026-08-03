@@ -64,7 +64,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Backdrop />
           <Header />
-          <main id="main">{children}</main>
+          {/* tabIndex={-1} makes the skip link actually move focus here —
+              without it the browser only scrolls. */}
+          <main id="main" tabIndex={-1}>
+            {children}
+          </main>
           <Footer />
         </Providers>
       </body>

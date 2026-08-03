@@ -15,8 +15,13 @@ export function Hero() {
   const phrases = t.hero.rotating
 
   // Reset when the locale changes so we never index past a shorter array.
-  useEffect(() => setIndex(0), [phrases])
+  useEffect(() => {
+    setIndex(0)
+  }, [phrases])
 
+  // Reading the preference in an effect (never in render output) is safe —
+  // the rotation is a content change, not just motion, so MotionConfig cannot
+  // suppress it for us.
   useEffect(() => {
     if (reduce || phrases.length < 2) return
     const id = window.setInterval(
@@ -45,7 +50,6 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="border-hairline flex items-center gap-2.5 rounded-full border bg-black/[0.03] py-1.5 pr-3.5 pl-2.5 dark:bg-white/[0.04]"
-            style={{ borderColor: 'var(--hairline)' }}
           >
             <span className="relative grid size-2 place-items-center">
               <span className="animate-pulse-ring absolute size-2 rounded-full bg-emerald-400" />
@@ -75,11 +79,15 @@ export function Hero() {
               {t.hero.headlinePrefix}{' '}
               <span className="relative inline-block align-top">
                 <AnimatePresence mode="wait" initial={false}>
+                  {/* No `reduce ?` branch on these props: `useReducedMotion()`
+                      is false on the server and true on a reduced-motion
+                      client, which is a hydration mismatch. MotionConfig
+                      neutralises the animation instead. */}
                   <motion.span
                     key={`${index}-${phrases[index]}`}
-                    initial={reduce ? undefined : { opacity: 0, y: 16, filter: 'blur(6px)' }}
-                    animate={reduce ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    exit={reduce ? undefined : { opacity: 0, y: -16, filter: 'blur(6px)' }}
+                    initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, y: -16, filter: 'blur(6px)' }}
                     transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     className="text-gradient inline-block"
                   >
@@ -116,7 +124,6 @@ export function Hero() {
             <a
               href="#contact"
               className="border-hairline text-ink-800 dark:text-ink-100 hover:border-brand-400/40 inline-flex items-center gap-2 rounded-xl border bg-black/[0.03] px-5 py-3 text-sm font-semibold transition-colors dark:bg-white/[0.05]"
-              style={{ borderColor: 'var(--hairline)' }}
             >
               <Mail className="size-4" />
               {t.hero.secondaryCta}
@@ -148,7 +155,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.34 }}
             className="mt-4 grid w-full grid-cols-2 gap-px overflow-hidden rounded-2xl border sm:grid-cols-4"
-            style={{ borderColor: 'var(--hairline)', background: 'var(--hairline)' }}
+            style={{ background: 'var(--hairline)' }}
           >
             {stats.map((stat) => (
               <div
@@ -177,7 +184,7 @@ export function Hero() {
         className="text-ink-400 hover:text-brand-500 absolute bottom-6 left-1/2 hidden -translate-x-1/2 lg:block"
       >
         <motion.span
-          animate={reduce ? undefined : { y: [0, 6, 0] }}
+          animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           className="grid place-items-center"
         >

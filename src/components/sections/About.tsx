@@ -45,7 +45,7 @@ export function About() {
             <Reveal delay={0.3}>
               <dl
                 className="mt-8 grid gap-px overflow-hidden rounded-2xl border sm:grid-cols-3"
-                style={{ borderColor: 'var(--hairline)', background: 'var(--hairline)' }}
+                style={{ background: 'var(--hairline)' }}
               >
                 {facts.map((fact) => (
                   <div

@@ -18,8 +18,6 @@ export type ExperienceEntry = {
   current?: boolean
   /** Technologies that defined the role. */
   stack: string[]
-  /** Number of translated highlight bullets to render. */
-  highlights: number
 }
 
 export const experience: ExperienceEntry[] = [
@@ -29,27 +27,23 @@ export const experience: ExperienceEntry[] = [
     period: '2024 — Present',
     current: true,
     stack: ['NestJS', 'React 19', 'PostgreSQL', 'Kubernetes', 'OpenAI', 'Claude'],
-    highlights: 4,
   },
   {
     id: 'platform-multitenant',
     org: 'Apex CRM · ALDEA',
     period: '2026',
     stack: ['Turborepo', 'Prisma 7', 'Multi-tenant', 'Helm', 'AWS EKS'],
-    highlights: 3,
   },
   {
     id: 'ai-agents',
     org: 'Automed AI · Flowmail',
     period: '2025 — 2026',
     stack: ['OpenAI Agents SDK', 'LangChain', 'WhatsApp Cloud API', 'OpenTelemetry'],
-    highlights: 3,
   },
   {
     id: 'saas-foundations',
     org: 'Chatfy · iaçougue',
     period: '2025',
     stack: ['NestJS', 'TypeORM', 'Stripe', 'Next.js', 'Docker'],
-    highlights: 3,
   },
 ]

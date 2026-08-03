@@ -17,6 +17,8 @@ import { useT } from '@/i18n/LocaleProvider'
 import { stack, type StackCategory, type StackCategoryId } from '@/data/stack'
 import { cn } from '@/lib/utils'
 
+const PANEL_ID = 'stack-detail-panel'
+
 const ICONS: Record<StackCategory['icon'], LucideIcon> = {
   Server,
   Monitor,
@@ -43,10 +45,12 @@ export function TechStack() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-8">
           {/* Category rail */}
+          {/* Toggle buttons, not a tablist: the rail is horizontal on mobile and
+              vertical on desktop, and there is no roving-tabindex arrow-key
+              model, so tab semantics would misrepresent the interaction. */}
           <Reveal>
             <div
-              role="tablist"
-              aria-orientation="vertical"
+              role="group"
               aria-label={t.stack.eyebrow}
               className="flex gap-2 overflow-x-auto pb-2 edge-fade-x lg:flex-col lg:overflow-visible lg:pb-0"
             >
@@ -59,8 +63,8 @@ export function TechStack() {
                   <button
                     key={category.id}
                     type="button"
-                    role="tab"
-                    aria-selected={isActive}
+                    aria-pressed={isActive}
+                    aria-controls={PANEL_ID}
                     onClick={() => setActiveId(category.id)}
                     onMouseEnter={() => setActiveId(category.id)}
                     onFocus={() => setActiveId(category.id)}
@@ -112,7 +116,11 @@ export function TechStack() {
 
           {/* Detail panel */}
           <Reveal delay={0.08}>
-            <div className="surface-card relative min-h-[24rem] overflow-hidden rounded-3xl p-6 sm:p-8">
+            <div
+              id={PANEL_ID}
+              aria-live="polite"
+              className="surface-card relative min-h-[24rem] overflow-hidden rounded-3xl p-6 sm:p-8"
+            >
               <div
                 className={cn(
                   'absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-40',
@@ -127,7 +135,6 @@ export function TechStack() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                  role="tabpanel"
                 >
                   <div className="mb-6 space-y-1.5">
                     <h3 className="text-ink-950 text-xl font-semibold tracking-tight dark:text-white">
@@ -145,10 +152,10 @@ export function TechStack() {
                           <span className="text-ink-800 dark:text-ink-100 text-sm font-medium">
                             {item.name}
                           </span>
-                          <span
-                            className="text-ink-400 font-mono text-[10px] tabular-nums"
-                            aria-label={`${t.stack.levelLabel}: ${item.level}/5`}
-                          >
+                          {/* aria-label is ignored on a generic <span>, so the
+                              context is carried by real off-screen text. */}
+                          <span className="text-ink-400 font-mono text-[10px] tabular-nums">
+                            <span className="sr-only">{t.stack.levelLabel}: </span>
                             {item.level}/5
                           </span>
                         </div>

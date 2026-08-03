@@ -1,20 +1,27 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useT } from '@/i18n/LocaleProvider'
 import { profile } from '@/data/profile'
-import { sections, cn, type SectionId } from '@/lib/utils'
+import { sections, cn, useNavLabels, type SectionId } from '@/lib/utils'
+
+const MOBILE_BREAKPOINT = '(min-width: 768px)'
 
 export function Header() {
   const t = useT()
+  const navLabels = useNavLabels()
   const { scrollY } = useScroll()
   const [condensed, setCondensed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [active, setActive] = useState<SectionId | null>(null)
+
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const sheetRef = useRef<HTMLElement>(null)
 
   useMotionValueEvent(scrollY, 'change', (y) => setCondensed(y > 24))
 
@@ -37,29 +44,64 @@ export function Header() {
     return () => observer.disconnect()
   }, [])
 
-  // Lock body scroll while the mobile sheet is open.
+  // The sheet is md:hidden, so growing past the breakpoint while it is open
+  // would hide it and strand the body scroll lock with no way to release it.
+  useEffect(() => {
+    const query = window.matchMedia(MOBILE_BREAKPOINT)
+    function onChange(event: MediaQueryListEvent) {
+      if (event.matches) setMenuOpen(false)
+    }
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
+
+  // Scroll lock, Escape to close, focus move in and focus restore on close.
   useEffect(() => {
     if (!menuOpen) return
-    const previous = document.body.style.overflow
+
+    const previousOverflow = document.body.style.overflow
+    const previouslyFocused = document.activeElement as HTMLElement | null
     document.body.style.overflow = 'hidden'
+    closeButtonRef.current?.focus()
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setMenuOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+
+      // Keep Tab inside the sheet while it is modal.
+      const focusables = sheetRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])',
+      )
+      if (!focusables || focusables.length === 0) return
+
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
     return () => {
-      document.body.style.overflow = previous
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = previousOverflow
+      previouslyFocused?.focus?.()
     }
   }, [menuOpen])
-
-  const navLabels: Record<SectionId, string> = {
-    about: t.nav.about,
-    projects: t.nav.projects,
-    stack: t.nav.stack,
-    experience: t.nav.experience,
-    contact: t.nav.contact,
-  }
 
   return (
     <>
       <a
         href="#main"
-        className="focus:bg-brand-500 sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+        className="focus:bg-brand-600 sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
       >
         {t.a11y.skipToContent}
       </a>
@@ -97,7 +139,7 @@ export function Header() {
                 <a
                   key={id}
                   href={`#${id}`}
-                  aria-current={active === id ? 'true' : undefined}
+                  aria-current={active === id ? 'location' : undefined}
                   className={cn(
                     'relative rounded-lg px-3 py-1.5 text-sm transition-colors',
                     active === id
@@ -121,11 +163,13 @@ export function Header() {
               <LanguageSwitcher />
               <ThemeToggle />
               <button
+                ref={menuButtonRef}
                 type="button"
                 onClick={() => setMenuOpen(true)}
                 aria-label={t.nav.menu}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
                 className="border-hairline text-ink-600 dark:text-ink-300 grid size-9 place-items-center rounded-lg border bg-black/[0.03] md:hidden dark:bg-white/[0.04]"
-                style={{ borderColor: 'var(--hairline)' }}
               >
                 <Menu className="size-4" />
               </button>
@@ -143,10 +187,16 @@ export function Header() {
             className="fixed inset-0 z-[60] md:hidden"
           >
             <div
+              aria-hidden
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setMenuOpen(false)}
             />
             <motion.nav
+              ref={sheetRef}
+              id="mobile-menu"
+              role="dialog"
+              aria-modal="true"
+              aria-label={t.nav.menu}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -158,6 +208,7 @@ export function Header() {
                   {t.nav.menu}
                 </span>
                 <button
+                  ref={closeButtonRef}
                   type="button"
                   onClick={() => setMenuOpen(false)}
                   aria-label={t.nav.closeMenu}

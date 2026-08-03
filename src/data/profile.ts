@@ -12,6 +12,11 @@ export const profile = {
   company: 'Automy',
   companyUrl: 'https://github.com/automyai',
 
+  /** Footer copyright year. Static on purpose — see Footer.tsx. */
+  copyrightSince: '2026',
+
+  githubHandle: 'CarlosNobregaa',
+
   links: {
     github: 'https://github.com/CarlosNobregaa',
     githubOrg: 'https://github.com/automyai',

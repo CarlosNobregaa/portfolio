@@ -15,12 +15,15 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-| Script              | What it does                                    |
-| ------------------- | ----------------------------------------------- |
-| `npm run dev`       | Development server with fast refresh             |
-| `npm run build`     | Production build + static export into `out/`     |
-| `npm run start`     | Serve the production build                       |
-| `npm run typecheck` | `tsc --noEmit` — includes translation checking   |
+| Script              | What it does                                        |
+| ------------------- | --------------------------------------------------- |
+| `npm run dev`       | Development server with fast refresh                 |
+| `npm run build`     | Production build + static export into `out/`         |
+| `npm run preview`   | Serve the exported `out/` directory                  |
+| `npm run typecheck` | `tsc --noEmit` — includes translation checking       |
+
+There is no `npm run start`: `next start` is unsupported with
+`output: 'export'`. Use `npm run preview` (or any static file server) instead.
 
 `next.config.ts` sets `output: 'export'`, so `npm run build` produces a fully
 static `out/` directory. It deploys as-is to Vercel, Netlify, GitHub Pages, S3 +
@@ -84,7 +87,10 @@ Everything below is in `src/data/profile.ts` unless noted:
 - [ ] `links.linkedin` — currently a guessed URL
 - [ ] `links.resume` — empty; drop a PDF in `public/` and point at it, and the
       Hero button appears on its own
-- [ ] `siteUrl` — used for `metadataBase` and Open Graph
+- [ ] `siteUrl` — used for `metadataBase`, Open Graph, `robots.txt` and the
+      sitemap
+- [ ] `copyrightSince` — the footer year is static on purpose (a live
+      `new Date()` would hydration-mismatch after 1 January in a static export)
 - [ ] `src/data/experience.ts` — periods were inferred from repository history;
       confirm them against your actual dates
 - [ ] `stats` — headline numbers; they are counted from real repositories, so
@@ -103,9 +109,13 @@ Everything below is in `src/data/profile.ts` unless noted:
 - **Design tokens** live as CSS custom properties in `src/app/globals.css`
   (`--surface`, `--hairline`, glow colours) so both themes share one set of
   component classes.
-- **Motion** is centralised in `src/components/ui/Reveal.tsx`. Every animation
-  respects `prefers-reduced-motion`, both through Framer's
-  `useReducedMotion()` and a global CSS override.
+- **Motion** honours `prefers-reduced-motion` through
+  `<MotionConfig reducedMotion="user">` in `src/components/Providers.tsx`,
+  which covers every Framer animation at once. Components deliberately do *not*
+  branch on the preference themselves: `useReducedMotion()` returns `false` on
+  the server and `true` on a reduced-motion client, so using it in render output
+  is a hydration mismatch. The CSS block in `globals.css` covers the separate
+  case of pure-CSS animations.
 - **The contact form** has no backend. It validates client-side, then hands the
   message to the visitor's mail client via `mailto:` — nothing is stored and no
   third-party form service is involved.
@@ -120,6 +130,8 @@ src/
 │   ├── layout.tsx          # fonts, metadata, providers, header/footer shell
 │   ├── page.tsx            # section composition
 │   ├── globals.css         # Tailwind 4 theme, tokens, utilities
+│   ├── opengraph-image.tsx # build-time social preview card
+│   ├── robots.ts / sitemap.ts
 │   └── icon.svg            # favicon
 ├── components/
 │   ├── layout/             # Header (nav, language switcher), Footer

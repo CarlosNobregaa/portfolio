@@ -3,19 +3,11 @@
 import { ArrowUp, Building2, Github, Linkedin, Mail } from 'lucide-react'
 import { useT } from '@/i18n/LocaleProvider'
 import { profile } from '@/data/profile'
-import { sections, type SectionId } from '@/lib/utils'
+import { sections, useNavLabels } from '@/lib/utils'
 
 export function Footer() {
   const t = useT()
-  const year = new Date().getFullYear()
-
-  const navLabels: Record<SectionId, string> = {
-    about: t.nav.about,
-    projects: t.nav.projects,
-    stack: t.nav.stack,
-    experience: t.nav.experience,
-    contact: t.nav.contact,
-  }
+  const navLabels = useNavLabels()
 
   const socials = [
     { icon: Github, href: profile.links.github, label: 'GitHub' },
@@ -74,7 +66,6 @@ export function Footer() {
                   aria-label={social.label}
                   title={social.label}
                   className="text-ink-500 dark:text-ink-400 hover:border-brand-400/40 hover:text-brand-600 dark:hover:text-brand-300 grid size-9 place-items-center rounded-xl border transition-colors"
-                  style={{ borderColor: 'var(--hairline)' }}
                 >
                   <social.icon className="size-4" />
                 </a>
@@ -85,11 +76,13 @@ export function Footer() {
 
         <div
           className="mt-12 flex flex-col-reverse items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-center"
-          style={{ borderColor: 'var(--hairline)' }}
         >
           <div className="text-ink-400 space-y-1 text-xs">
+            {/* `copyrightSince` rather than `new Date()`: the year gets baked
+                into the static export, so a live clock guarantees a hydration
+                mismatch on 1 January until someone rebuilds. */}
             <p>
-              © {year} {profile.name}. {t.footer.rights}
+              © {profile.copyrightSince} {profile.name}. {t.footer.rights}
             </p>
             <p>{t.footer.builtWith}</p>
           </div>
@@ -97,7 +90,6 @@ export function Footer() {
           <a
             href="#top"
             className="text-ink-500 dark:text-ink-400 hover:border-brand-400/40 hover:text-brand-600 dark:hover:text-brand-300 inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors"
-            style={{ borderColor: 'var(--hairline)' }}
           >
             <ArrowUp className="size-3.5" />
             {t.footer.backToTop}

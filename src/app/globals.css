@@ -20,42 +20,32 @@
   --color-brand-900: #144a4e;
   --color-brand-950: #042f33;
 
+  /*
+   * Ink ramp. The 400/500 steps carry body copy and captions, so they are
+   * defined at their *light theme* values here — dark enough for WCAG AA on
+   * white — and relaxed back to lighter tones under `.dark` below, where the
+   * contrast runs the other way.
+   */
   --color-ink-50: #f7f8f9;
   --color-ink-100: #eef0f2;
   --color-ink-200: #d9dde2;
   --color-ink-300: #b7bfc8;
-  --color-ink-400: #8e99a6;
-  --color-ink-500: #6f7c8b;
+  --color-ink-400: #5d6875; /* 5.9:1 on white */
+  --color-ink-500: #57626f; /* 6.4:1 on white */
   --color-ink-600: #586372;
   --color-ink-700: #48515d;
   --color-ink-800: #3e454e;
   --color-ink-900: #363c44;
   --color-ink-950: #0b0d10;
 
+  /* Hairline exposed as a real colour token so `border-hairline` compiles.
+     `--hairline` itself is redefined per theme, so this follows along. */
+  --color-hairline: var(--hairline);
+
   --radius-4xl: 2rem;
 
-  --animate-marquee: marquee 40s linear infinite;
-  --animate-shimmer: shimmer 2.4s linear infinite;
   --animate-float: float 8s ease-in-out infinite;
   --animate-pulse-ring: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes shimmer {
-  from {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
 }
 
 @keyframes float {
@@ -92,6 +82,8 @@
   --glow-b: rgb(139 92 246 / 0.14);
   --glow-c: rgb(56 189 248 / 0.12);
   --grid-line: rgb(0 0 0 / 0.045);
+  /* 4.9:1 against white — above the 3:1 minimum for focus indicators. */
+  --focus-ring: #0d8e90;
   color-scheme: light;
 }
 
@@ -105,13 +97,29 @@
   --glow-b: rgb(139 92 246 / 0.18);
   --glow-c: rgb(56 189 248 / 0.14);
   --grid-line: rgb(255 255 255 / 0.04);
+  --focus-ring: #2fcfcb;
   color-scheme: dark;
+
+  /* Relax the two text steps: on a near-black surface the light theme's
+     darkened values would be the unreadable ones. */
+  --color-ink-400: #8e99a6;
+  --color-ink-500: #7d8896;
 }
 
 /* ----------------------------------------------------------------- base --- */
 
-* {
-  border-color: var(--hairline);
+@layer base {
+  /*
+   * Default border colour for every element, matching Tailwind's own preflight
+   * pattern. This MUST live in a layer: an unlayered `*` rule would outrank
+   * every `border-*` utility (unlayered declarations beat all layered ones),
+   * silently killing things like the red border on an invalid form field.
+   */
+  *,
+  *::before,
+  *::after {
+    border-color: var(--hairline);
+  }
 }
 
 html {
@@ -126,8 +134,16 @@ body {
   @apply text-ink-700 dark:text-ink-300 antialiased;
 }
 
+/* Written literally rather than via @apply: the `dark:` variant compiles to
+   `::selection:where()` — an empty, permanently dead selector — on a
+   pseudo-element rule. */
 ::selection {
-  @apply bg-brand-400/30 text-ink-950 dark:text-white;
+  background-color: rgb(47 207 203 / 0.3);
+  color: var(--color-ink-950);
+}
+
+.dark ::selection {
+  color: #ffffff;
 }
 
 /* Slimmer scrollbar that respects the theme. */
@@ -148,7 +164,8 @@ body {
 }
 
 :focus-visible {
-  @apply outline-brand-400 outline-2 outline-offset-2;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* --------------------------------------------------------------- helpers --- */
@@ -156,7 +173,14 @@ body {
 @utility surface-card {
   background-color: color-mix(in oklab, var(--surface-raised) 92%, transparent);
   border: 1px solid var(--hairline);
-  backdrop-filter: blur(12px);
+}
+
+/* The blur is decorative and there are ~15 of these on the page, which is a
+   real cost on mobile GPUs. Only composite it where there is room to spare. */
+@media (min-width: 768px) {
+  .surface-card {
+    backdrop-filter: blur(12px);
+  }
 }
 
 @utility text-gradient {
@@ -190,7 +214,11 @@ body {
   );
 }
 
-/* Honour the OS reduced-motion preference for everything, including Framer. */
+/*
+ * CSS-driven motion only. Framer Motion writes inline styles from rAF and is
+ * unaffected by this block — it is handled separately by <MotionConfig
+ * reducedMotion="user"> in src/components/Providers.tsx.
+ */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

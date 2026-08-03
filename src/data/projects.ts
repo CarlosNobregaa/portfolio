@@ -234,5 +234,3 @@ export const projects: Project[] = [
     privateRepo: true,
   },
 ]
-
-export const featuredProjectIds = ['aldea', 'apex-crm', 'automed'] as const

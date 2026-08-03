@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "//preview": "`next start` is unsupported with output: 'export' — serve the static output instead.",
+    "preview": "npx --yes serve out",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

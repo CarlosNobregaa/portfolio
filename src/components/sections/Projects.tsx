@@ -71,18 +71,19 @@ export function Projects() {
         />
 
         <Reveal delay={0.1}>
+          {/* Plain toggle buttons, not tabs: there is no tabpanel and no
+              arrow-key model, so `role="tablist"` would promise a keyboard
+              interaction that does not exist. */}
           <div
-            role="tablist"
+            role="group"
             aria-label={t.projects.eyebrow}
             className="border-hairline mb-10 inline-flex flex-wrap gap-1 rounded-xl border bg-black/[0.03] p-1 dark:bg-white/[0.04]"
-            style={{ borderColor: 'var(--hairline)' }}
           >
             {filters.map((f) => (
               <button
                 key={f.id}
                 type="button"
-                role="tab"
-                aria-selected={filter === f.id}
+                aria-pressed={filter === f.id}
                 onClick={() => setFilter(f.id)}
                 className={cn(
                   'relative rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors',
@@ -104,8 +105,10 @@ export function Projects() {
           </div>
         </Reveal>
 
+        {/* No `mode="popLayout"`: it silently no-ops unless every child forwards
+            a ref to its motion element, and the default mode reflows fine here. */}
         <motion.div layout className="grid gap-5 lg:grid-cols-2">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
             {visible.map((project, i) => (
               <ProjectCard
                 key={project.id}
@@ -192,12 +195,14 @@ function ProjectCard({
           <span className="text-ink-400 shrink-0 font-mono text-xs">{project.year}</span>
         </div>
 
+        {/* auto-fit rather than a fixed column count: values like
+            "schema/tenant" and "Shopify + Stripe" have no break opportunity and
+            get clipped in a 1/3-width cell on a 360px viewport. */}
         <dl
           className="grid gap-px overflow-hidden rounded-xl border"
           style={{
-            borderColor: 'var(--hairline)',
             background: 'var(--hairline)',
-            gridTemplateColumns: `repeat(${project.metrics.length}, minmax(0, 1fr))`,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(7.5rem, 1fr))',
           }}
         >
           {project.metrics.map((metric) => (
@@ -206,7 +211,7 @@ function ProjectCard({
               className="flex flex-col gap-0.5 px-3 py-2.5"
               style={{ background: 'var(--surface-raised)' }}
             >
-              <dd className="text-ink-950 font-mono text-sm font-semibold dark:text-white">
+              <dd className="text-ink-950 font-mono text-xs font-semibold sm:text-sm dark:text-white">
                 {metric.value}
               </dd>
               <dt className="text-ink-400 text-[10px] leading-tight">
@@ -227,37 +232,40 @@ function ProjectCard({
           ) : null}
         </div>
 
-        <AnimatePresence initial={false}>
-          {isOpen ? (
-            <motion.div
-              id={panelId}
-              key="body"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="grid gap-5 pt-2 lg:grid-cols-3">
-                {blocks.map((block) => (
-                  <div key={block.key} className="space-y-2">
-                    <h4 className="text-ink-400 flex items-center gap-1.5 font-mono text-[10px] font-semibold tracking-[0.16em] uppercase">
-                      <block.icon className="size-3.5" />
-                      {block.label}
-                    </h4>
-                    <p className="text-ink-600 dark:text-ink-300 text-sm leading-relaxed text-pretty">
-                      {block.body}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+        {/* The wrapper is always in the DOM so `aria-controls` on the toggle
+            always resolves; `hidden` removes the collapsed content from the
+            accessibility tree and the tab order. */}
+        <div id={panelId} hidden={!isOpen}>
+          <AnimatePresence initial={false}>
+            {isOpen ? (
+              <motion.div
+                key="body"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="grid gap-5 pt-2 lg:grid-cols-3">
+                  {blocks.map((block) => (
+                    <div key={block.key} className="space-y-2">
+                      <h4 className="text-ink-400 flex items-center gap-1.5 font-mono text-[10px] font-semibold tracking-[0.16em] uppercase">
+                        <block.icon className="size-3.5" />
+                        {block.label}
+                      </h4>
+                      <p className="text-ink-600 dark:text-ink-300 text-sm leading-relaxed text-pretty">
+                        {block.body}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
 
         <div
           className="mt-auto flex items-center justify-between gap-3 border-t pt-4"
-          style={{ borderColor: 'var(--hairline)' }}
         >
           <button
             type="button"
@@ -288,26 +296,24 @@ function ProjectCard({
               </a>
             ) : null}
 
-            {project.repo ? (
-              <a
-                href={project.repo}
-                target="_blank"
-                rel="noreferrer noopener"
-                title={project.privateRepo ? labels.privateRepo : labels.viewRepo}
-                className="text-ink-500 hover:text-ink-900 dark:hover:text-white inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
-              >
-                {project.privateRepo ? (
-                  <Lock className="size-3.5" />
-                ) : (
-                  <Github className="size-3.5" />
-                )}
-                {project.privateRepo ? labels.privateRepo : labels.viewRepo}
-              </a>
-            ) : (
+            {/* A private repo is never linked — the URL would 404 for anyone
+                without access, which reads as a broken portfolio. */}
+            {project.privateRepo || !project.repo ? (
               <span className="text-ink-400 inline-flex items-center gap-1.5 text-xs">
                 <Lock className="size-3.5" />
                 {labels.privateRepo}
               </span>
+            ) : (
+              <a
+                href={project.repo}
+                target="_blank"
+                rel="noreferrer noopener"
+                title={labels.viewRepo}
+                className="text-ink-500 hover:text-ink-900 dark:hover:text-white inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
+              >
+                <Github className="size-3.5" />
+                {labels.viewRepo}
+              </a>
             )}
           </div>
         </div>

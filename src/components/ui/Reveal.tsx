@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useReducedMotion, type Variants } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -10,29 +10,19 @@ type RevealProps = {
   delay?: number
   /** Travel distance in px before settling. */
   y?: number
-  as?: 'div' | 'section' | 'li' | 'article' | 'span'
 }
 
 /**
- * Scroll-triggered entrance. Fires once, and collapses to a plain fade-free
- * render when the visitor prefers reduced motion.
+ * Scroll-triggered entrance, fired once.
+ *
+ * There is deliberately no `prefers-reduced-motion` branch here: returning a
+ * different element on the client than the server rendered is a hydration
+ * mismatch, because Framer serialises `initial` into the static HTML. The
+ * preference is handled globally by <MotionConfig reducedMotion="user">.
  */
-export function Reveal({
-  children,
-  className,
-  delay = 0,
-  y = 24,
-  as = 'div',
-}: RevealProps) {
-  const reduce = useReducedMotion()
-  const Component = motion[as]
-
-  if (reduce) {
-    return <div className={className}>{children}</div>
-  }
-
+export function Reveal({ children, className, delay = 0, y = 24 }: RevealProps) {
   return (
-    <Component
+    <motion.div
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -40,7 +30,7 @@ export function Reveal({
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </Component>
+    </motion.div>
   )
 }
 
