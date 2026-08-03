@@ -1,0 +1,205 @@
+@import 'tailwindcss';
+
+/* next-themes writes `class="dark"` on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Brand ramp — cool cyan/violet, tuned to read on both themes. */
+  --color-brand-50: #eefdfb;
+  --color-brand-100: #d3f9f4;
+  --color-brand-200: #a9f1ea;
+  --color-brand-300: #6ee4dd;
+  --color-brand-400: #2fcfcb;
+  --color-brand-500: #14b2b1;
+  --color-brand-600: #0d8e90;
+  --color-brand-700: #107174;
+  --color-brand-800: #135a5e;
+  --color-brand-900: #144a4e;
+  --color-brand-950: #042f33;
+
+  --color-ink-50: #f7f8f9;
+  --color-ink-100: #eef0f2;
+  --color-ink-200: #d9dde2;
+  --color-ink-300: #b7bfc8;
+  --color-ink-400: #8e99a6;
+  --color-ink-500: #6f7c8b;
+  --color-ink-600: #586372;
+  --color-ink-700: #48515d;
+  --color-ink-800: #3e454e;
+  --color-ink-900: #363c44;
+  --color-ink-950: #0b0d10;
+
+  --radius-4xl: 2rem;
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+/* ---------------------------------------------------------------- tokens --- */
+
+:root {
+  --surface: #ffffff;
+  --surface-raised: #fbfcfd;
+  --surface-sunken: #f4f6f8;
+  --hairline: rgb(0 0 0 / 0.08);
+  --hairline-strong: rgb(0 0 0 / 0.14);
+  --glow-a: rgb(20 178 177 / 0.18);
+  --glow-b: rgb(139 92 246 / 0.14);
+  --glow-c: rgb(56 189 248 / 0.12);
+  --grid-line: rgb(0 0 0 / 0.045);
+  color-scheme: light;
+}
+
+.dark {
+  --surface: #08090b;
+  --surface-raised: #0d0f13;
+  --surface-sunken: #050607;
+  --hairline: rgb(255 255 255 / 0.08);
+  --hairline-strong: rgb(255 255 255 / 0.16);
+  --glow-a: rgb(20 178 177 / 0.22);
+  --glow-b: rgb(139 92 246 / 0.18);
+  --glow-c: rgb(56 189 248 / 0.14);
+  --grid-line: rgb(255 255 255 / 0.04);
+  color-scheme: dark;
+}
+
+/* ----------------------------------------------------------------- base --- */
+
+* {
+  border-color: var(--hairline);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--surface);
+  font-feature-settings: 'cv11', 'ss01';
+  font-variation-settings: 'opsz' 32;
+  @apply text-ink-700 dark:text-ink-300 antialiased;
+}
+
+::selection {
+  @apply bg-brand-400/30 text-ink-950 dark:text-white;
+}
+
+/* Slimmer scrollbar that respects the theme. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-sunken);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hairline-strong);
+  border-radius: 999px;
+  border: 2px solid var(--surface-sunken);
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand-500/60;
+}
+
+:focus-visible {
+  @apply outline-brand-400 outline-2 outline-offset-2;
+}
+
+/* --------------------------------------------------------------- helpers --- */
+
+@utility surface-card {
+  background-color: color-mix(in oklab, var(--surface-raised) 92%, transparent);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(12px);
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-brand-300) 0%,
+    var(--color-brand-500) 30%,
+    #8b5cf6 65%,
+    #38bdf8 100%
+  );
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility grid-backdrop {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* Fades a marquee/scroller out at both edges. */
+@utility edge-fade-x {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+/* Honour the OS reduced-motion preference for everything, including Framer. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
