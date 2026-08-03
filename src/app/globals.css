@@ -120,6 +120,28 @@
   *::after {
     border-color: var(--hairline);
   }
+
+  /*
+   * Tailwind v4's preflight sets `cursor: default` on buttons to match the UA
+   * spec, which loses the affordance every user expects. Put it back for
+   * everything interactive — including elements that only look like buttons.
+   */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='menuitem']:not([aria-disabled='true']),
+  [role='menuitemradio']:not([aria-disabled='true']),
+  [role='option']:not([aria-disabled='true']),
+  [role='tab']:not([aria-disabled='true']),
+  label[for],
+  summary,
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
 }
 
 html {

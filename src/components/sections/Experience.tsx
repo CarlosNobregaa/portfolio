@@ -7,6 +7,7 @@ import { Reveal } from '@/components/ui/Reveal'
 import { TechBadge } from '@/components/ui/TechBadge'
 import { useT } from '@/i18n/LocaleProvider'
 import { experience } from '@/data/experience'
+import { Education } from './Education'
 
 export function Experience() {
   const t = useT()
@@ -110,6 +111,8 @@ export function Experience() {
             })}
           </ol>
         </div>
+
+        <Education />
       </div>
     </section>
   )

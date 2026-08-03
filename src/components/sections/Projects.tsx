@@ -1,42 +1,26 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Beef,
-  Bot,
-  Boxes,
-  Building2,
+  ArrowUpRight,
   ChevronDown,
   ExternalLink,
   Github,
-  Handshake,
   Lightbulb,
   Lock,
-  Mail,
-  ShieldCheck,
   Target,
   TrendingUp,
-  Users,
-  type LucideIcon,
 } from 'lucide-react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Reveal } from '@/components/ui/Reveal'
 import { TechBadge } from '@/components/ui/TechBadge'
+import { ProjectMockup } from '@/components/mockups/ProjectMockup'
 import { useT } from '@/i18n/LocaleProvider'
 import { projects, type Project, type ProjectTier } from '@/data/projects'
+import { PROJECT_ICONS } from '@/data/project-icons'
 import { cn } from '@/lib/utils'
-
-const ICONS: Record<Project['icon'], LucideIcon> = {
-  Building2,
-  Users,
-  Bot,
-  Mail,
-  Handshake,
-  ShieldCheck,
-  Beef,
-  Boxes,
-}
 
 const TIER_ORDER: ProjectTier[] = ['flagship', 'feature', 'sidecar']
 type Filter = 'all' | ProjectTier
@@ -141,7 +125,7 @@ function ProjectCard({
   const t = useT()
   const copy = t.projects.items[project.id]
   const labels = t.projects.labels
-  const Icon = ICONS[project.icon]
+  const Icon = PROJECT_ICONS[project.icon]
   const panelId = `project-panel-${project.id}`
 
   const blocks = [
@@ -170,6 +154,36 @@ function ProjectCard({
           project.accent,
         )}
       />
+
+      {/*
+        Interface preview, scaled down to a thumbnail — the detail page renders
+        the same mockup at full size. The fixed height is required: `scale` is a
+        transform and does not shrink the layout box, so without it the card
+        keeps a ~45px gap underneath.
+      */}
+      <Link
+        href={`/projects/${project.id}`}
+        aria-label={`${labels.viewProject}: ${project.name}`}
+        className="relative block h-[205px] overflow-hidden"
+        style={{ background: 'var(--surface-sunken)' }}
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none origin-top scale-[0.82] px-5 pt-5 transition-transform duration-500 group-hover:scale-[0.86]"
+        >
+          <ProjectMockup id={project.id} accent={project.accent} />
+        </div>
+
+        {/* Fade the bottom of the thumbnail into the card body. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-16"
+          style={{
+            background:
+              'linear-gradient(to top, var(--surface-raised), transparent)',
+          }}
+        />
+      </Link>
 
       <div className="flex flex-col gap-5 p-6 sm:p-7">
         <div className="flex items-start justify-between gap-4">
@@ -264,6 +278,17 @@ function ProjectCard({
           </AnimatePresence>
         </div>
 
+        <Link
+          href={`/projects/${project.id}`}
+          className="group/cta from-brand-500 shadow-brand-500/20 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r via-brand-500 to-violet-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99]"
+        >
+          {labels.viewProject}
+          <ArrowUpRight
+            aria-hidden
+            className="size-4 transition-transform group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5"
+          />
+        </Link>
+
         <div
           className="mt-auto flex items-center justify-between gap-3 border-t pt-4"
         >
@@ -276,6 +301,7 @@ function ProjectCard({
           >
             {isOpen ? labels.collapse : labels.expand}
             <ChevronDown
+              aria-hidden
               className={cn(
                 'size-4 transition-transform duration-300',
                 isOpen && 'rotate-180',

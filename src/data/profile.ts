@@ -4,10 +4,11 @@
  */
 export const profile = {
   name: 'Carlos Nóbrega',
+  fullName: 'Carlos Wagner Nóbrega Andriola',
   shortName: 'Carlos',
   initials: 'CN',
   email: 'adm.chatfy@gmail.com',
-  location: 'Brazil',
+  location: 'Ceará, Brazil',
   timezone: 'GMT-3',
   company: 'Automy',
   companyUrl: 'https://github.com/automyai',
@@ -20,8 +21,7 @@ export const profile = {
   links: {
     github: 'https://github.com/CarlosNobregaa',
     githubOrg: 'https://github.com/automyai',
-    // TODO: replace with your real LinkedIn URL
-    linkedin: 'https://www.linkedin.com/in/carlos-nobrega',
+    linkedin: 'https://www.linkedin.com/in/carloswnobrega/',
     /**
      * TODO: drop a CV at public/carlos-nobrega-cv.pdf and set this to
      * '/carlos-nobrega-cv.pdf'. While empty, the Hero hides the résumé button
@@ -38,7 +38,7 @@ export const profile = {
     productionPlatforms: 6,
     domainModules: 95,
     monorepos: 3,
-    yearsFocus: 5,
+    yearsFocus: 3,
   },
 } as const
 
