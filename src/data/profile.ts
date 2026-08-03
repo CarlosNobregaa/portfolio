@@ -42,4 +42,12 @@ export const profile = {
   },
 } as const
 
-export const siteUrl = 'https://carlosnobrega.dev'
+/**
+ * Absolute origin for `metadataBase`, Open Graph, robots.txt and the sitemap.
+ * It must be a URL that actually resolves — a dead origin here silently breaks
+ * every social preview, because the OG image tag is rendered against it.
+ *
+ * Set NEXT_PUBLIC_SITE_URL in the Vercel project when a custom domain lands.
+ */
+export const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://portfolio-two-pied-15.vercel.app'

@@ -29,6 +29,17 @@ There is no `npm run start`: `next start` is unsupported with
 static `out/` directory. It deploys as-is to Vercel, Netlify, GitHub Pages, S3 +
 CloudFront or an nginx container — no Node runtime required.
 
+## Deployment
+
+Live at **https://portfolio-two-pied-15.vercel.app**.
+
+The Vercel project is connected to this GitHub repository, so a push to `main`
+deploys automatically. To deploy manually:
+
+```bash
+npx vercel --prod
+```
+
 ---
 
 ## Internationalization
@@ -87,8 +98,10 @@ Everything below is in `src/data/profile.ts` unless noted:
 - [ ] `links.linkedin` — currently a guessed URL
 - [ ] `links.resume` — empty; drop a PDF in `public/` and point at it, and the
       Hero button appears on its own
-- [ ] `siteUrl` — used for `metadataBase`, Open Graph, `robots.txt` and the
-      sitemap
+- [ ] `siteUrl` — defaults to the Vercel production URL. When a custom domain
+      lands, set `NEXT_PUBLIC_SITE_URL` in the Vercel project rather than
+      editing the file. It must resolve: the Open Graph image tag is rendered
+      against it, so a dead origin breaks every social preview.
 - [ ] `copyrightSince` — the footer year is static on purpose (a live
       `new Date()` would hydration-mismatch after 1 January in a static export)
 - [ ] `src/data/experience.ts` — periods were inferred from repository history;
