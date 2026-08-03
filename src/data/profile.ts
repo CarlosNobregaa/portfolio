@@ -50,4 +50,4 @@ export const profile = {
  * Set NEXT_PUBLIC_SITE_URL in the Vercel project when a custom domain lands.
  */
 export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://portfolio-two-pied-15.vercel.app'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://portfolio-carlosnobrega.vercel.app'
