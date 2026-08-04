@@ -1,12 +1,38 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowDown, ArrowUpRight, FileText, Github, Mail } from 'lucide-react'
 import { useT } from '@/i18n/LocaleProvider'
 import { profile } from '@/data/profile'
 
 const ROTATE_MS = 3200
+
+/**
+ * One rendering of "<prefix> <phrase>".
+ *
+ * Used for both the visible headline and the invisible sizers behind it, so
+ * the two are guaranteed to wrap identically — that equivalence is the whole
+ * point, and it breaks the moment the markup diverges.
+ */
+function HeadlineLine({
+  prefix,
+  children,
+  className,
+  ariaHidden = false,
+}: {
+  prefix: string
+  children: ReactNode
+  className?: string
+  ariaHidden?: boolean
+}) {
+  return (
+    <span className={className} aria-hidden={ariaHidden || undefined}>
+      {prefix}{' '}
+      <span className="relative inline-block align-top">{children}</span>
+    </span>
+  )
+}
 
 export function Hero() {
   const t = useT()
@@ -78,43 +104,49 @@ export function Hero() {
             >
               {/*
                 Every phrase is rendered invisibly into the same grid cell as
-                the visible one. The cell resolves to the tallest of them, so a
-                phrase that wraps onto an extra line no longer pushes the
-                paragraph below up and down while it rotates. Measuring this way
-                rather than hard-coding a height keeps it correct across all
-                three locales and every breakpoint.
+                the visible one, so the cell resolves to the tallest and the
+                paragraph below never moves while the headline rotates.
+
+                The sizers must use HeadlineLine too, not plain text. The
+                rotating phrase sits inside an inline-block, which is atomic for
+                line breaking — it either fits on the line or drops to the next
+                one whole. Plain text wraps at any word boundary, so a
+                text-only sizer can measure a different number of lines than the
+                markup it is standing in for, which is what made the first
+                attempt at this fail.
               */}
               {phrases.map((phrase, i) => (
-                <span
+                <HeadlineLine
                   key={i}
-                  aria-hidden
+                  prefix={t.hero.headlinePrefix}
                   className="invisible col-start-1 row-start-1"
+                  ariaHidden
                 >
-                  {t.hero.headlinePrefix} {phrase}
-                </span>
+                  <span className="inline-block">{phrase}</span>
+                </HeadlineLine>
               ))}
 
-              <span className="col-start-1 row-start-1">
-                {t.hero.headlinePrefix}{' '}
-                <span className="relative inline-block align-top">
-                  <AnimatePresence mode="wait" initial={false}>
-                    {/* No `reduce ?` branch on these props: `useReducedMotion()`
-                        is false on the server and true on a reduced-motion
-                        client, which is a hydration mismatch. MotionConfig
-                        neutralises the animation instead. */}
-                    <motion.span
-                      key={`${index}-${phrases[index]}`}
-                      initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
-                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, y: -16, filter: 'blur(6px)' }}
-                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                      className="text-gradient inline-block"
-                    >
-                      {phrases[index]}
-                    </motion.span>
-                  </AnimatePresence>
-                </span>
-              </span>
+              <HeadlineLine
+                prefix={t.hero.headlinePrefix}
+                className="col-start-1 row-start-1"
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {/* No `reduce ?` branch on these props: `useReducedMotion()`
+                      is false on the server and true on a reduced-motion
+                      client, which is a hydration mismatch. MotionConfig
+                      neutralises the animation instead. */}
+                  <motion.span
+                    key={`${index}-${phrases[index]}`}
+                    initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, y: -16, filter: 'blur(6px)' }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-gradient inline-block"
+                  >
+                    {phrases[index]}
+                  </motion.span>
+                </AnimatePresence>
+              </HeadlineLine>
             </motion.h1>
 
             <motion.p
